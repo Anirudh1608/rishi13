@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rishika's Birthday Universe 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:#000;overflow:hidden;color:#fff;cursor:none}
+
+/* Custom Cursor */
+.cursor-dot{
+position:fixed;
+width:12px;height:12px;
+background:#ff4b7d;
+border-radius:50%;
+pointer-events:none;
+box-shadow:0 0 20px #ff4b7d,0 0 40px #ff9a9e;
+z-index:9999;
+}
+
+/* Parallax Galaxy */
+.parallax{
+position:fixed;
+width:200%;
+height:200%;
+background:
+radial-gradient(white 1px,transparent 1px),
+radial-gradient(#ff9a9e 1px,transparent 1px);
+background-size:50px 50px,120px 120px;
+opacity:0.25;
+z-index:-1;
+}
+
+.screen{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+transition:1s;
+}
+.hidden{opacity:0;pointer-events:none}
+
+.glass{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(25px);
+padding:30px;
+border-radius:25px;
+width:90%;
+max-width:420px;
+text-align:center;
+box-shadow:0 0 40px rgba(255,255,255,0.1);
+animation:fadeIn 1.2s ease;
+}
+@keyframes fadeIn{
+from{opacity:0;transform:scale(0.9)}
+to{opacity:1;transform:scale(1)}
+}
+
+h1{
+font-size:2.5rem;
+font-weight:800;
+letter-spacing:6px;
+text-shadow:0 0 20px #ff4b7d;
+animation:glow 2s infinite alternate;
+}
+@keyframes glow{
+from{text-shadow:0 0 15px #ff4b7d}
+to{text-shadow:0 0 35px #fff}
+}
+
+input{
+padding:12px;border:none;border-radius:20px;
+margin-top:15px;text-align:center;width:80%;
+}
+button{
+padding:12px 25px;border:none;border-radius:25px;
+margin-top:15px;
+background:linear-gradient(45deg,#ff4b7d,#ff9a9e);
+color:white;font-weight:bold;cursor:pointer;
+transition:0.3s;
+}
+button:hover{transform:scale(1.1)}
+
+.card{
+background:rgba(255,255,255,0.12);
+padding:10px;border-radius:15px;margin:8px 0;
+}
+
+canvas{position:fixed;top:0;left:0;pointer-events:none}
+
+/* Secret Panel */
+#secretPanel{
+position:fixed;bottom:-100%;left:0;
+width:100%;height:60%;
+background:#111;
+border-top-left-radius:30px;
+border-top-right-radius:30px;
+padding:25px;
+transition:0.8s;
+overflow:auto;
+}
+#secretPanel.show{bottom:0}
+#secretBtn{
+position:absolute;bottom:20px;right:20px;
+font-size:26px;cursor:pointer;
+}
+
+/* Floating hearts */
+.heart{
+position:fixed;font-size:18px;
+animation:float 6s linear infinite;
+}
+@keyframes float{
+0%{transform:translateY(100vh)}
+100%{transform:translateY(-10vh)}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursor"></div>
+<div class="parallax" id="parallax"></div>
+<canvas id="fireworks"></canvas>
+
+<!-- LOADING SCREEN -->
+<div class="screen" id="loading">
+<h1 id="loadText">Loading...</h1>
+</div>
+
+<!-- LOGIN -->
+<div class="screen hidden" id="login">
+<div class="glass">
+<h2>✨ Enter The Birthday Universe ✨</h2>
+<input type="password" id="pass" placeholder="Password">
+<br>
+<button onclick="checkPass()">Unlock 🎁</button>
+<p id="error"></p>
+</div>
+</div>
+
+<!-- MAIN -->
+<div class="screen hidden" id="main">
+<div class="glass">
+<h1>RISHIKA</h1>
+<h2>🎉 Happy Birthday Madam ji 🎉</h2>
+<p id="countdown"></p>
+
+<div class="card">😠 Bahubali of Ballia </div>
+<div class="card">😴 Professional Sleepy head</div>
+<div class="card">📱 Slowest Replier (sometimes)</div>
+<div class="card">👩‍🎓 Future IAS </div>
+
+<h3>🎮 Who is the luckiest?</h3>
+<button onclick="quiz(this)">A) Me</button>
+<button onclick="quiz(this)">B) You</button>
+<button onclick="quiz(this)">C) The Whole World</button>
+<p id="quizResult"></p>
+
+<h3>💌 Message</h3>
+<p id="typing"></p>
+
+<button onclick="toggleMusic()">🎵 Toggle Music</button>
+</div>
+
+<div id="secretBtn" onclick="openSecret()">💖</div>
+</div>
+
+<div id="secretPanel">
+<h2>Secret Letter 💌</h2>
+<p>
+No matter where life takes us…  
+you’ll always have someone cheering for you loudly and proudly 😌  
+Stay amazing. Stay chaotic. Be yourself . Achieve your dreams. And remember, you are loved beyond words. Happy Birthday Rishika! 🌸✨
+</p>
+<br>
+<button onclick="closeSecret()">Close</button>
+</div>
+
+<audio id="music" loop>
+<source src="kiliye.mp3.mpeg" type="audio/mpeg">
+</audio>
+
+<script>
+/* Custom Cursor */
+document.addEventListener("mousemove",e=>{
+let c=document.getElementById("cursor");
+c.style.left=e.clientX+"px";
+c.style.top=e.clientY+"px";
+});
+
+/* Parallax */
+document.addEventListener("mousemove",e=>{
+let p=document.getElementById("parallax");
+p.style.transform=`translate(${e.clientX/50}px,${e.clientY/50}px)`;
+});
+
+/* Loading Animation */
+setTimeout(()=>{
+document.getElementById("loadText").innerText="Rishika's Universe ✨";
+},1500);
+setTimeout(()=>{
+document.getElementById("loading").classList.add("hidden");
+document.getElementById("login").classList.remove("hidden");
+},3000);
+
+/* Password */
+function checkPass(){
+if(document.getElementById("pass").value.toLowerCase()==="rishika"){
+document.getElementById("login").classList.add("hidden");
+document.getElementById("main").classList.remove("hidden");
+startAll();
+}else{
+document.getElementById("error").innerText="Wrong password 😝";
+}
+}
+
+function startAll(){
+startTyping();
+launchFireworks();
+createHearts();
+startCountdown();
+document.getElementById("music").play();
+}
+
+/* Typing */
+let text="Happy Birthday Rishika... may your dreams come true and your life be filled with joy and laughter 🌸✨";
+let i=0;
+function startTyping(){
+if(i<text.length){
+document.getElementById("typing").innerHTML=text.substring(0,i)+"|";
+i++;
+setTimeout(startTyping,40);
+}else{
+document.getElementById("typing").innerHTML=text;
+}
+}
+
+/* Countdown */
+function startCountdown(){
+let now=new Date();
+let year=now.getFullYear();
+let birthday=new Date(year,1,13);
+if(now>birthday) birthday=new Date(year+1,1,13);
+setInterval(()=>{
+let diff=birthday-new Date();
+let d=Math.floor(diff/86400000);
+let h=Math.floor(diff/3600000)%24;
+let m=Math.floor(diff/60000)%60;
+let s=Math.floor(diff/1000)%60;
+document.getElementById("countdown").innerText=
+diff<=0?"🎂 It's Officially Rishika's Day!":
+`⏳ ${d}d ${h}h ${m}m ${s}s left`;
+},1000);
+}
+
+/* Quiz */
+function quiz(btn){
+document.getElementById("quizResult").innerText=
+"Correct Answer: ALL OF THEM 😌💖";
+}
+
+/* Fireworks */
+let canvas=document.getElementById("fireworks");
+let ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+function launchFireworks(){
+setInterval(()=>{
+let x=Math.random()*canvas.width;
+let y=Math.random()*canvas.height/2;
+for(let i=0;i<60;i++){
+let angle=Math.random()*2*Math.PI;
+let speed=Math.random()*6;
+let dx=Math.cos(angle)*speed;
+let dy=Math.sin(angle)*speed;
+drawParticle(x,y,dx,dy);
+}
+},900);
+}
+function drawParticle(x,y,dx,dy){
+let life=60;
+let color=`hsl(${Math.random()*360},100%,60%)`;
+function animate(){
+if(life<=0)return;
+ctx.fillStyle=color;
+ctx.beginPath();
+ctx.arc(x,y,2,0,Math.PI*2);
+ctx.fill();
+x+=dx;y+=dy;life--;
+requestAnimationFrame(animate);
+}
+animate();
+}
+
+/* Hearts */
+function createHearts(){
+setInterval(()=>{
+let heart=document.createElement("div");
+heart.className="heart";
+heart.innerHTML="💖";
+heart.style.left=Math.random()*100+"vw";
+heart.style.animationDuration=(4+Math.random()*4)+"s";
+document.body.appendChild(heart);
+setTimeout(()=>heart.remove(),8000);
+},500);
+}
+
+/* Secret Panel */
+function openSecret(){document.getElementById("secretPanel").classList.add("show")}
+function closeSecret(){document.getElementById("secretPanel").classList.remove("show")}
+
+/* Music */
+function toggleMusic(){
+let m=document.getElementById("music");
+m.paused?m.play():m.pause();
+}
+</script>
+
+</body>
+</html>
